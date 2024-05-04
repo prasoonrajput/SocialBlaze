@@ -10,7 +10,18 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI);
 //   apiKey: process.env.OPENAI_KEY, // This is the default and can be omitted
 // });
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+// const bot = new Telegraf(process.env.BOT_TOKEN);
+
+const bot = new Telegraf(process.env.BOT_TOKEN, {
+  telegram: {
+      options: {
+          polling: {
+              // Specify the port here
+              port: process.env.PORT||5001,
+          }
+      }
+  }
+});
 try {
   connectdb();
   console.log("Database connection established");
