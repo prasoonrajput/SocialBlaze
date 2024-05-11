@@ -14,14 +14,15 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI);
 
 const bot = new Telegraf(process.env.BOT_TOKEN, {
   telegram: {
-      options: {
-          polling: {
-              // Specify the port here
-              port: process.env.PORT||5001,
-          }
-      }
-  }
+    options: {
+      polling: {
+        // Specify the port here
+        port: process.env.PORT || 5001,
+      },
+    },
+  },
 });
+
 try {
   connectdb();
   console.log("Database connection established");
@@ -29,11 +30,35 @@ try {
   console.error(error);
   process.kill(process.pid, "SIGTERM");
 }
+
 bot.start(async (ctx) => {
-  //   console.log("ctx", ctx);
   const from = ctx.update.message.from;
   console.log("from", from);
+
   try {
+    
+   
+    // try {
+    //   const newUser = await userModel.create({
+    //     tgId: from.id,
+    //     firstName: from.first_name,
+    //     lastName: from.last_name,
+    //     isBot: from.is_bot,
+    //     username: from.username ? from.username : null, // Set username only if not null
+    //   });
+    
+    //   await ctx.reply(
+    //     `Hey! ${newUser.firstName}, Welcome! I will be writing highly engaging social media posts for you  with the events throughout the day. Let's shine on social media ✨`
+    //   );
+    // } catch (error) {
+    //   console.error("Error occurred while creating user:", error);
+    //   // Check for specific error codes (optional)
+    //   if (error.code === 11000) { // Example check for duplicate key error code
+    //     await ctx.reply("An error occurred during user creation (username might already exist). Please try again later.");
+    //   } else {
+    //     await ctx.reply("An unexpected error occurred. Please try again later.");
+    //   }
+    // }
     await userModel.findOneAndUpdate(
       { tgId: from.id },
       {
@@ -41,7 +66,7 @@ bot.start(async (ctx) => {
           firstName: from.first_name,
           lastName: from.last_name,
           isBot: from.is_bot,
-          username: from.username,
+          username: from.username?from.username:null,
         },
       },
       {
@@ -50,32 +75,33 @@ bot.start(async (ctx) => {
       }
     );
     await ctx.reply(
-      `Hey! ${from.first_name} ,Welcome I will be writing higly engaging social media post for you 🚀 with the events through out the day. Let's shine on social media ✨`
+      `Hey! ${from.first_name} ,Welcome I will be writing highly engaging social media posts for you 🚀 with the events throughout the day. Let's shine on social media ✨`
     );
-  } catch (error) {
-    console.log(error);
-    console.log("facing diffculties");
-    await ctx.reply("Facing diffculties please try again later.");
+  }catch (error) {
+    console.error("Error occurred while updating user:", error);
+    await ctx.reply("An error occurred, please try again later.");
   }
 });
 
-bot.help((ctx)=>{
-  ctx.reply("For support plz contaact admin @Rajput4218")
-})
+bot.help((ctx) => {
+  ctx.reply("For support plz contaact admin @Rajput4218");
+});
 
-bot.command("admin", async(ctx)=>{
-  ctx.reply("For support plz contaact admin @Rajput4218")
-  ctx.reply("Admin Instagram : www.instagram.com/rajput.prasoon")
-  ctx.reply("Admin Twitter : www.x.com/0xrajput")
-})
+bot.command("admin", async (ctx) => {
+  ctx.reply("For support plz contaact admin @Rajput4218");
+  ctx.reply("Admin Instagram : www.instagram.com/rajput.prasoon");
+  ctx.reply("Admin Twitter : www.x.com/0xrajput");
+});
 
 bot.command("generate", async (ctx) => {
   const from = ctx.update.message.from;
   const { message_id: waitingMeassage } = await ctx.reply(
     `Hey! ${from.first_name}, Kindley wait for a moment.I am curating post for you`
   );
-  const{message_id:stickerwaitingId}=await ctx.replyWithSticker('CAACAgIAAxkBAAIBSWY13Nf0sFlR2LaiLmVPOJemSi7nAAIxAAMNttIZXdKISghjh-80BA')
-  
+  const { message_id: stickerwaitingId } = await ctx.replyWithSticker(
+    "CAACAgIAAxkBAAIBSWY13Nf0sFlR2LaiLmVPOJemSi7nAAIxAAMNttIZXdKISghjh-80BA"
+  );
+
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
@@ -148,7 +174,7 @@ bot.command("generate", async (ctx) => {
     console.log("Response:", response);
 
     console.log("Full Response:", text);
-    await ctx.reply(text);
+    await ctx.reply(text.replace(/\*/g, ''));
     // For multi-turn conversations (like chat)
     const history = await chat.getHistory();
     const msgContent = { role: "user", parts: [{ text: msg }] };
@@ -174,7 +200,9 @@ bot.command("generate", async (ctx) => {
   await ctx.deleteMessage(stickerwaitingId);
 
   await ctx.reply("Done ! Thanks for using");
-  const{message_id:stickerThankYouId}=await ctx.replyWithSticker('CAACAgUAAxkBAAIBSGY13JZmXM8tPO70B8XGRpPqDnO2AAJdAANawqASAlw2yWA5pEs0BA')
+  const { message_id: stickerThankYouId } = await ctx.replyWithSticker(
+    "CAACAgUAAxkBAAIBSGY13JZmXM8tPO70B8XGRpPqDnO2AAJdAANawqASAlw2yWA5pEs0BA"
+  );
 
   // try {
   //   const chatCompletin = await openai.chat.completions.create({
@@ -200,12 +228,9 @@ bot.command("generate", async (ctx) => {
   // }
 });
 
-
 // bot.on(message("sticker"),async(ctx)=>{
 //   console.log(ctx.update.message)
 // } )
-
-
 
 bot.on(message("text"), async (ctx) => {
   const from = ctx.update.message.from;

@@ -1,39 +1,40 @@
 import mongoose from "mongoose";
 
-const userSchema=mongoose.Schema({
-    tgId:{
-        type:String,
-        required:true,
-        unique:true
+const userSchema = mongoose.Schema(
+  {
+    tgId: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    firstName:{
-        type:String,
-        required:true,
+    firstName: {
+      type: String,
+      required: true,
     },
-    lastName:{
-        type:String,
-        required:true,
+    lastName: {
+      type: String,
+      required: true,
     },
-    isBot:{
-        type:Boolean,
-        required:true,
+    isBot: {
+      type: Boolean,
+      required: true,
     },
-    UserName:{
-        type:String,
-        required:true,
-        unique:true
+    username: {
+      type: String,
+      required: false,
+      unique: true,
+     
     },
-    promptTokens:{
-        type:Number,
-        required:false
+    promptTokens: {
+      type: Number,
+      required: false,
     },
-    completionTokens:{
-        type:Number,
-        required:false
+    completionTokens: {
+      type: Number,
+      required: false,
+    },
+  },
+  { timestamps: true }
+);
 
-    }
-
-},{timestamps:true})
-
-
-export default mongoose.model("User",userSchema)
+export default mongoose.model("User", userSchema);
